@@ -292,13 +292,24 @@
             new bootstrap.Modal(document.getElementById('driverModal')).show();
           });
         });
+		
+		const colorPalette = [
+  "#3366CC", "#DC3912", "#FF9900", "#109618",
+  "#990099", "#3B3EAC", "#0099C6", "#DD4477",
+  "#66AA00", "#B82E2E", "#316395", "#994499",
+  "#22AA99", "#AAAA11", "#6633CC", "#E67300",
+  "#8B0707", "#651067", "#329262", "#5574A6",
+  "#3B3EAC"
+];
 
-        let datasets = sortedByPoints.map(item=>({
-          label:item.driver,
-          data:totalPoints[item.driver],
-          borderWidth:2,
-          fill:false
-        }));
+        let datasets = sortedByPoints.map((item, idx) => ({
+  label: item.driver,
+  data: totalPoints[item.driver],
+  borderColor: colorPalette[idx % colorPalette.length],
+  backgroundColor: colorPalette[idx % colorPalette.length],
+  borderWidth: 2,
+  fill: false
+}));
 
         new Chart(document.getElementById('trend'),{
           type:'line',
