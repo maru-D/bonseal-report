@@ -39,6 +39,13 @@
     }
     .driver-points {
       font-weight: 700;
+      color: #ff6f00;
+      font-size: 1.2rem;
+      margin-right: 10px;
+    }
+    .driver-elo {
+      font-weight: 700;
+      color: #990099;
       font-size: 1.2rem;
     }
     canvas {
@@ -48,7 +55,7 @@
       font-weight: 700;
       color: #ff6f00;
     }
-    /* 定义颜色类 */
+    /* 分站颜色 */
     .color-blue { color: #3366CC; }
     .color-orange { color: #FF9900; }
     .color-green { color: #109618; }
@@ -66,14 +73,18 @@
         <h3>赛季总积分榜</h3>
         <ul class="list-group mb-4" id="standings"></ul>
       </div>
-     
+      <div class="col-lg-6 col-md-12">
+        <h3 class="color-purple">车手实力评分榜</h3>
+        <ul class="list-group mb-4" id="eloList"></ul>
+      </div>
     </div>
-	<div class="row g-4">
-	 <div class="col-12">
+
+    <div class="row g-4">
+      <div class="col-12">
         <h3>总积分趋势图</h3>
         <canvas id="trend"></canvas>
       </div>
-	</div>
+    </div>
 
     <div class="row g-4 mt-4" id="raceCards"></div>
   </div>
@@ -96,6 +107,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const pointsTable = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+    const INITIAL_ELO = 1500;
+    const K = 400;
 
     let driverBarChart = null;
 
@@ -110,6 +123,7 @@
         let totalPoints = {};
         let stats = {};
         let racePoints = {};
+        let elo = {};
 
         data.races.forEach(race => {
           race.results.forEach(res => {
@@ -124,6 +138,7 @@
 
         driversSet.forEach(driver => {
           totalPoints[driver] = [];
+          elo[driver] = INITIAL_ELO;
           stats[driver] = {
             wins: 0,
             podiums: 0,
@@ -135,12 +150,14 @@
 
         data.races.forEach((race, raceIndex) => {
           let thisRacePoints = {};
+          let raceTotalPoints = 0;
 
           race.results.forEach(res => {
             const driver = res.driver;
             const pos = res.position;
             let pts = (pos <=10)? pointsTable[pos-1]:0;
             thisRacePoints[driver] = pts;
+            raceTotalPoints += pts;
 
             if(pos===1) stats[driver].wins++;
             if(pos>=1 && pos<=3) stats[driver].podiums++;
@@ -152,8 +169,30 @@
             let top10 = race.results.filter(res=>res.position<=10).map(res=>res.driver);
             if(top10.includes(flDriver)){
               thisRacePoints[flDriver]=(thisRacePoints[flDriver]||0)+1;
+              raceTotalPoints +=1;
             }
           }
+
+          // 多玩家 Elo 更新
+          let eloSum = 0;
+          driversSet.forEach(driver => {
+            eloSum += elo[driver];
+          });
+
+          driversSet.forEach(driver => {
+            if (!(driver in thisRacePoints)) {
+              // 未参赛，不更新 Elo
+              return;
+            }
+            const actualRatio = raceTotalPoints > 0
+              ? (thisRacePoints[driver] || 0) / raceTotalPoints
+              : 0;
+            const expectedRatio = eloSum > 0
+              ? elo[driver] / eloSum
+              : 1 / driversSet.size;
+            const delta = K * (actualRatio - expectedRatio);
+            elo[driver] += delta;
+          });
 
           driversSet.forEach(driver=>{
             const prev = raceIndex>0 ? totalPoints[driver][raceIndex-1]:0;
@@ -192,18 +231,30 @@
         let latestTotals = [];
         driversSet.forEach(d=>{
           let sum = totalPoints[d][totalPoints[d].length-1]||0;
-          latestTotals.push({driver:d,points:sum});
+          latestTotals.push({driver:d,points:sum, elo:Math.round(elo[d])});
         });
-        latestTotals.sort((a,b)=>b.points-a.points);
 
+        // 积分榜
+        let sortedByPoints = [...latestTotals].sort((a,b)=>b.points-a.points);
         let standingsHtml = "";
-        latestTotals.forEach((item,idx)=>{
+        sortedByPoints.forEach((item,idx)=>{
           standingsHtml+=`<li class="list-group-item" data-driver="${item.driver}">
             <div><span class="me-2">${String(idx+1).padStart(2,'0')}</span><span class="driver-name">${item.driver}</span></div>
             <div class="driver-points">${item.points} 分</div>
           </li>`;
         });
         document.getElementById('standings').innerHTML=standingsHtml;
+
+        // Elo 榜
+        let sortedByElo = [...latestTotals].sort((a,b)=>b.elo - a.elo);
+        let eloHtml = "";
+        sortedByElo.forEach((item,idx)=>{
+          eloHtml+=`<li class="list-group-item">
+            <div><span class="me-2">${String(idx+1).padStart(2,'0')}</span><span class="driver-name">${item.driver}</span></div>
+            <div class="driver-elo">${item.elo}</div>
+          </li>`;
+        });
+        document.getElementById('eloList').innerHTML = eloHtml;
 
         document.querySelectorAll('#standings .list-group-item').forEach(el=>{
           el.addEventListener('click',()=>{
@@ -242,7 +293,7 @@
           });
         });
 
-        let datasets = latestTotals.map(item=>({
+        let datasets = sortedByPoints.map(item=>({
           label:item.driver,
           data:totalPoints[item.driver],
           borderWidth:2,
