@@ -258,6 +258,44 @@
 		{"driver": "高桥凉粉", "position": 21},
 		{"driver": "LYX", "position": 21}	
       ]
+    },
+	  {
+      "round": 17,
+      "raceName": "巴库",
+      "date": "2025-07-9",
+      "fastestLap": "919",
+      "results": [
+        {"driver": "曾宇", "position": 1},
+        {"driver": "919", "position": 2},
+        {"driver": "卡尔", "position": 3},
+        {"driver": "2046", "position": 5},
+        {"driver": "jeongx", "position": 21},
+		{"driver": "大口口", "position": 21},
+		{"driver": "冬天", "position": 21},
+		{"driver": "M.Verstappen", "position": 21},
+		{"driver": "机器鸟", "position": 21},
+		{"driver": "Taxz", "position": 21},	
+		{"driver": "高桥凉粉", "position": 21}
+      ]
+    },
+	  {
+      "round": 17,
+      "raceName": "新加坡",
+      "date": "2025-07-9",
+      "fastestLap": "LYX",
+      "results": [
+        {"driver": "LYX", "position": 1},
+        {"driver": "高桥凉粉", "position": 2},
+        {"driver": "曾宇", "position": 3},
+        {"driver": "919", "position": 4},
+        {"driver": "卡尔", "position": 5},
+		{"driver": "2046", "position": 6},
+		{"driver": "M.Verstappen", "position": 8},
+		{"driver": "jeongx", "position": 21},
+		{"driver": "Taxz", "position": 21},
+		{"driver": "机器鸟", "position": 21},	
+		{"driver": "冬天", "position": 21}
+      ]
     }
   ]
 }
