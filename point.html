@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bonseal Racing 2025 积分报表</title>
-  <link href="./static/bootstrap.min.css" rel="stylesheet">
-  <link href="./static/fonts/montserrat.css" rel="stylesheet">
+  <link href="./static/bootstrap.min.css" rel="stylesheet" />
+  <link href="./static/fonts/montserrat.css" rel="stylesheet" />
   <script src="./static/chart.min.js"></script>
+  <script src="./static/bootstrap.bundle.min.js"></script>
   <style>
     body {
       background-color: #f8f9fa;
@@ -55,13 +56,20 @@
       font-weight: 700;
       color: #ff6f00;
     }
-    /* 分站颜色 */
     .color-blue { color: #3366CC; }
     .color-orange { color: #FF9900; }
     .color-green { color: #109618; }
     .color-purple { color: #990099; }
     .color-red { color: #DC3912; }
     .color-cyan { color: #0099C6; }
+    #trend {
+      height: 250px;
+    }
+    @media (max-width: 768px) {
+      #trend {
+        height: 400px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -74,7 +82,7 @@
         <ul class="list-group mb-4" id="standings"></ul>
       </div>
       <div class="col-lg-6 col-md-12">
-        <h3 class="color-purple">实力评估榜(ELO)</h3>
+        <h3 class="color-purple">车手实力评分榜</h3>
         <ul class="list-group mb-4" id="eloList"></ul>
       </div>
     </div>
@@ -104,7 +112,6 @@
     </div>
   </div>
 
-  <script src="./static/bootstrap.bundle.min.js"></script>
   <script>
     const pointsTable = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
     const INITIAL_ELO = 1500;
@@ -114,211 +121,287 @@
 
     const colorClasses = ['color-blue', 'color-orange', 'color-green', 'color-purple', 'color-red', 'color-cyan'];
 
-    fetch('data.json')
-      .then(response => response.json())
-      .then(data => {
-        let driversSet = new Set();
-        let raceLabels = [];
-        let raceLabelsShort = [];
-        let totalPoints = {};
-        let stats = {};
-        let racePoints = {};
-        let elo = {};
+    Promise.all([
+      fetch('R.json').then(res => res.json()),
+      fetch('Q.json').then(res => res.json())
+    ]).then(([data, qData]) => {
+      let driversSet = new Set();
+      let raceLabels = [];
+      let raceLabelsShort = [];
+      let totalPoints = {};
+      let stats = {};
+      let racePoints = {};
+      let elo = {};
 
-        data.races.forEach(race => {
-          race.results.forEach(res => {
-            driversSet.add(res.driver);
-          });
+      const qualifyingMap = {};
+      qData.races.forEach(r => {
+        qualifyingMap[r.round] = r;
+      });
+
+      data.races.forEach(race => {
+        race.results.forEach(res => {
+          driversSet.add(res.driver);
+        });
+      });
+
+      data.races.forEach(race => {
+        raceLabels.push(race.raceName);
+        raceLabelsShort.push(race.raceName.slice(0, 2));
+      });
+
+      driversSet.forEach(driver => {
+        totalPoints[driver] = [];
+        elo[driver] = INITIAL_ELO;
+        stats[driver] = {
+          wins: 0,
+          podiums: 0,
+          dnfs: 0,
+          points: 0
+        };
+        racePoints[driver] = [];
+      });
+
+      data.races.forEach((race, raceIndex) => {
+        let thisRacePoints = {};
+        let raceTotalPoints = 0;
+
+        race.results.forEach(res => {
+          const driver = res.driver;
+          const pos = res.position;
+          let pts = (pos <= 10) ? pointsTable[pos - 1] : 0;
+          thisRacePoints[driver] = pts;
+          raceTotalPoints += pts;
+
+          if (pos === 1) stats[driver].wins++;
+          if (pos >= 1 && pos <= 3) stats[driver].podiums++;
+          if (pos === 21) stats[driver].dnfs++;
         });
 
-        data.races.forEach(race => {
-          raceLabels.push(race.raceName);
-          raceLabelsShort.push(race.raceName.slice(0,2));
+        const flDriver = race.fastestLap;
+        if (flDriver && flDriver !== '/') {
+          let top10 = race.results.filter(res => res.position <= 10).map(res => res.driver);
+          if (top10.includes(flDriver)) {
+            thisRacePoints[flDriver] = (thisRacePoints[flDriver] || 0) + 1;
+            raceTotalPoints += 1;
+          }
+        } 
+
+        let eloSum = 0;
+        driversSet.forEach(driver => {
+          eloSum += elo[driver];
         });
 
         driversSet.forEach(driver => {
-          totalPoints[driver] = [];
-          elo[driver] = INITIAL_ELO;
-          stats[driver] = {
-            wins: 0,
-            podiums: 0,
-            dnfs: 0,
-            points: 0
-          };
-          racePoints[driver] = [];
+          if (!(driver in thisRacePoints)) {
+            return;
+          }
+          const actualRatio = raceTotalPoints > 0
+            ? (thisRacePoints[driver] || 0) / raceTotalPoints
+            : 0;
+          const expectedRatio = eloSum > 0
+            ? elo[driver] / eloSum
+            : 1 / driversSet.size;
+          const delta = K * (actualRatio - expectedRatio);
+          elo[driver] += delta;
         });
 
-        data.races.forEach((race, raceIndex) => {
-          let thisRacePoints = {};
-          let raceTotalPoints = 0;
+        driversSet.forEach(driver => {
+          const prev = raceIndex > 0 ? totalPoints[driver][raceIndex - 1] : 0;
+          const curr = thisRacePoints[driver] || 0;
+          totalPoints[driver][raceIndex] = prev + curr;
+          racePoints[driver][raceIndex] = curr;
+        });
 
-          race.results.forEach(res => {
-            const driver = res.driver;
-            const pos = res.position;
-            let pts = (pos <=10)? pointsTable[pos-1]:0;
-            thisRacePoints[driver] = pts;
-            raceTotalPoints += pts;
+        race.results.forEach(res => {
+          stats[res.driver].points = totalPoints[res.driver][raceIndex];
+        });
 
-            if(pos===1) stats[driver].wins++;
-            if(pos>=1 && pos<=3) stats[driver].podiums++;
-            if(pos===21) stats[driver].dnfs++;
-          });
+        let colorClass = colorClasses[raceIndex % colorClasses.length];
 
-          const flDriver = race.fastestLap;
-          if(flDriver && flDriver!=='/'){
-            let top10 = race.results.filter(res=>res.position<=10).map(res=>res.driver);
-            if(top10.includes(flDriver)){
-              thisRacePoints[flDriver]=(thisRacePoints[flDriver]||0)+1;
-              raceTotalPoints +=1;
-            }
-          }
-
-          // 多玩家 Elo 更新
-          let eloSum = 0;
-          driversSet.forEach(driver => {
-            eloSum += elo[driver];
-          });
-
-          driversSet.forEach(driver => {
-            if (!(driver in thisRacePoints)) {
-              // 未参赛，不更新 Elo
-              return;
-            }
-            const actualRatio = raceTotalPoints > 0
-              ? (thisRacePoints[driver] || 0) / raceTotalPoints
-              : 0;
-            const expectedRatio = eloSum > 0
-              ? elo[driver] / eloSum
-              : 1 / driversSet.size;
-            const delta = K * (actualRatio - expectedRatio);
-            elo[driver] += delta;
-          });
-
-          driversSet.forEach(driver=>{
-            const prev = raceIndex>0 ? totalPoints[driver][raceIndex-1]:0;
-            const curr = thisRacePoints[driver]||0;
-            totalPoints[driver][raceIndex]=prev+curr;
-            racePoints[driver][raceIndex]=curr;
-          });
-
-          race.results.forEach(res=>{
-            stats[res.driver].points=totalPoints[res.driver][raceIndex];
-          });
-
-          let colorClass = colorClasses[raceIndex % colorClasses.length];
-
-          let html = `
+        let html = `
           <div class="col-lg-6 col-md-12">
             <div class="card p-3">
               <h3 class="${colorClass}">${race.raceName} (${race.date})</h3>
-              <p><strong class="${colorClass}">最快圈：</strong> ${race.fastestLap==='/'?'无最快圈':race.fastestLap}</p>
+              <ul class="nav nav-tabs mt-2">
+                <li class="nav-item">
+                  <a class="nav-link active" data-bs-toggle="tab" href="#race-tab-${race.round}">正赛</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-bs-toggle="tab" href="#qualifying-tab-${race.round}">排位赛</a>
+                </li>
+              </ul>
+              <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="race-tab-${race.round}">
+                  <p><strong class="${colorClass}">最快圈：</strong> ${race.fastestLap === '/' ? '无最快圈' : race.fastestLap}</p>
+                  <ul class="list-group">`;
+
+        race.results.forEach(res => {
+          const driver = res.driver;
+          const posText = res.position === 21 ? '退赛' : String(res.position);
+          const pts = thisRacePoints[driver] || 0;
+          html += `<li class="list-group-item">
+              <div><span class="me-2">${posText.padStart(2, '0')}</span><span class="driver-name">${driver}</span></div>
+              <div class="driver-points ${colorClass}">${pts} 分</div>
+            </li>`;
+        });
+
+        html += `</ul></div>`;
+
+        const qRace = qualifyingMap[race.round];
+        if (qRace) {
+          html += `
+            <div class="tab-pane fade" id="qualifying-tab-${race.round}">
               <ul class="list-group">`;
 
-          race.results.forEach(res=>{
+          qRace.results.forEach(res => {
             const driver = res.driver;
-            const posText = res.position===21?'退赛':String(res.position);
-            const pts = thisRacePoints[driver]||0;
-            html+=`<li class="list-group-item">
-              <div><span class="me-2">${posText.padStart(2,'0')}</span><span class="driver-name">${driver}</span></div>
-              <div class="driver-points ${colorClass}">${pts} 分</div>
+            const posText = res.position === 21 ? '退赛' : String(res.position);
+            const rlt = res.rlt || '/';
+            html += `<li class="list-group-item">
+              <div><span class="me-2">${posText.padStart(2, '0')}</span><span class="driver-name">${driver}</span></div>
+              <div class="driver-points ${colorClass}">${rlt}</div>
             </li>`;
           });
 
-          html+=`</ul></div></div>`;
-          document.getElementById('raceCards').innerHTML+=html;
-        });
+          html += `</ul></div>`;
+        }
 
-        let latestTotals = [];
-        driversSet.forEach(d=>{
-          let sum = totalPoints[d][totalPoints[d].length-1]||0;
-          latestTotals.push({driver:d,points:sum, elo:Math.round(elo[d])});
-        });
+        html += `</div></div></div>`;
 
-        // 积分榜
-        let sortedByPoints = [...latestTotals].sort((a,b)=>b.points-a.points);
-        let standingsHtml = "";
-        sortedByPoints.forEach((item,idx)=>{
-          standingsHtml+=`<li class="list-group-item" data-driver="${item.driver}">
-            <div><span class="me-2">${String(idx+1).padStart(2,'0')}</span><span class="driver-name">${item.driver}</span></div>
-            <div class="driver-points">${item.points} 分</div>
-          </li>`;
-        });
-        document.getElementById('standings').innerHTML=standingsHtml;
+        document.getElementById('raceCards').innerHTML += html;
+      });
 
-        // Elo 榜
-        let sortedByElo = [...latestTotals].sort((a,b)=>b.elo - a.elo);
-        let eloHtml = "";
-        sortedByElo.forEach((item,idx)=>{
-          eloHtml+=`<li class="list-group-item">
-            <div><span class="me-2">${String(idx+1).padStart(2,'0')}</span><span class="driver-name">${item.driver}</span></div>
+      let latestTotals = [];
+      driversSet.forEach(d => {
+        let sum = totalPoints[d][totalPoints[d].length - 1] || 0;
+        latestTotals.push({ driver: d, points: sum, elo: Math.round(elo[d]) });
+      });
+
+      let prevTotals = [];
+      driversSet.forEach(d => {
+        let len = totalPoints[d].length;
+        let prevSum = len >= 2 ? totalPoints[d][len - 2] : 0;
+        prevTotals.push({ driver: d, points: prevSum });
+      });
+
+      let prevSorted = [...prevTotals].sort((a, b) => b.points - a.points);
+      let prevRankMap = {};
+      prevSorted.forEach((item, idx) => {
+        prevRankMap[item.driver] = idx + 1;
+      });
+
+      let sortedByPoints = [...latestTotals].sort((a, b) => b.points - a.points);
+
+	  let standingsHtml = "";
+sortedByPoints.forEach((item, idx) => {
+  let driver = item.driver;
+  let prevRank = prevRankMap[driver] || idx + 1;
+  let rankChange = prevRank - (idx + 1);
+
+  let icon = "";
+  if (rankChange > 0) {
+    icon = `<span style="color:green;">▲</span>`;
+  } else if (rankChange < 0) {
+    icon = `<span style="color:red;">▼</span>`;
+  }
+
+  standingsHtml += `<li class="list-group-item" data-driver="${driver}">
+      <div>
+        <span class="me-2">${String(idx + 1).padStart(2, '0')}</span>
+        <span class="driver-name">${driver}</span>
+      </div>
+      <div class="driver-points d-flex align-items-center">
+        ${icon}
+        <span class="ms-2">${item.points} 分</span>
+      </div>
+    </li>`;
+});
+
+	 
+      document.getElementById('standings').innerHTML = standingsHtml;
+
+      let sortedByElo = [...latestTotals].sort((a, b) => b.elo - a.elo);
+      let eloHtml = "";
+      sortedByElo.forEach((item, idx) => {
+        eloHtml += `<li class="list-group-item">
+            <div><span class="me-2">${String(idx + 1).padStart(2, '0')}</span><span class="driver-name">${item.driver}</span></div>
             <div class="driver-elo">${item.elo}</div>
           </li>`;
-        });
-        document.getElementById('eloList').innerHTML = eloHtml;
+      });
+      document.getElementById('eloList').innerHTML = eloHtml;
 
-        document.querySelectorAll('#standings .list-group-item').forEach(el=>{
-          el.addEventListener('click',()=>{
-            const driver=el.dataset.driver;
-            const s=stats[driver];
-            document.getElementById('driverModalLabel').innerText=driver;
-            document.getElementById('driverModalBody').innerHTML=`
-              <p><strong>总积分：</strong>${s.points}</p>
-              <p><strong>获胜次数：</strong>${s.wins}</p>
-              <p><strong>领奖台次数：</strong>${s.podiums}</p>
-              <p><strong>未完赛次数：</strong>${s.dnfs}</p>
-              <canvas id="driverBarChart" height="300"></canvas>
-            `;
+      document.querySelectorAll('#standings .list-group-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const driver = el.dataset.driver;
+          const s = stats[driver];
+          document.getElementById('driverModalLabel').innerText = driver;
+          document.getElementById('driverModalBody').innerHTML = `
+            <p><strong>总积分：</strong>${s.points}</p>
+            <p><strong>获胜次数：</strong>${s.wins}</p>
+            <p><strong>领奖台次数：</strong>${s.podiums}</p>
+            <p><strong>未完赛次数：</strong>${s.dnfs}</p>
+            <canvas id="driverBarChart" height="300"></canvas>
+          `;
 
-            if(driverBarChart){driverBarChart.destroy();}
+          if (driverBarChart) { driverBarChart.destroy(); }
 
-            driverBarChart=new Chart(document.getElementById('driverBarChart'),{
-              type:'bar',
-              data:{
-                labels:raceLabelsShort,
-                datasets:[{
-                  label:'每场积分',
-                  data:racePoints[driver],
-                  backgroundColor:'#ff6f00'
-                }]
-              },
-              options:{
-                indexAxis:'y',
-                responsive:true,
-                plugins:{legend:{display:false}},
-                scales:{x:{beginAtZero:true}}
-              }
-            });
-
-            new bootstrap.Modal(document.getElementById('driverModal')).show();
+          driverBarChart = new Chart(document.getElementById('driverBarChart'), {
+            type: 'bar',
+            data: {
+              labels: raceLabelsShort,
+              datasets: [{
+                label: '每场积分',
+                data: racePoints[driver],
+                backgroundColor: '#ff6f00'
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: { x: { beginAtZero: true } }
+            }
           });
-        });
-		
-		const colorPalette = [
-  "#3366CC", "#DC3912", "#FF9900", "#109618",
-  "#990099", "#3B3EAC", "#0099C6", "#DD4477",
-  "#66AA00", "#B82E2E", "#316395", "#994499",
-  "#22AA99", "#AAAA11", "#6633CC", "#E67300",
-  "#8B0707", "#651067", "#329262", "#5574A6",
-  "#3B3EAC"
-];
 
-        let datasets = sortedByPoints.map((item, idx) => ({
-  label: item.driver,
-  data: totalPoints[item.driver],
-  borderColor: colorPalette[idx % colorPalette.length],
-  backgroundColor: colorPalette[idx % colorPalette.length],
-  borderWidth: 2,
-  fill: false
-}));
-
-        new Chart(document.getElementById('trend'),{
-          type:'line',
-          data:{
-            labels:raceLabels,
-            datasets:datasets
-          }
+          new bootstrap.Modal(document.getElementById('driverModal')).show();
         });
       });
+
+      const colorPalette = [
+        "#3366CC", "#DC3912", "#FF9900", "#109618",
+        "#990099", "#3B3EAC", "#0099C6", "#DD4477",
+        "#66AA00", "#B82E2E", "#316395", "#994499",
+        "#22AA99", "#AAAA11", "#6633CC", "#E67300",
+        "#8B0707", "#651067", "#329262", "#5574A6",
+        "#3B3EAC"
+      ];
+
+      let datasets = sortedByPoints.map((item, idx) => ({
+        label: item.driver,
+        data: totalPoints[item.driver],
+        borderColor: colorPalette[idx % colorPalette.length],
+        backgroundColor: colorPalette[idx % colorPalette.length],
+        borderWidth: 2,
+        fill: false
+      }));
+
+      new Chart(document.getElementById('trend'), {
+  type: 'line',
+  data: {
+    labels: raceLabels,
+    datasets: datasets
+  },
+  options: {
+    responsive: true,
+    aspectRatio: window.innerWidth < 768 ? 0.6 : 2.5,
+    plugins: {
+      legend: {
+        display: true
+      }
+    }
+  }
+});
+    });
   </script>
 </body>
 </html>
