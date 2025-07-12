@@ -335,6 +335,45 @@
 		{"driver": "机器鸟", "position": 21},
 		{"driver": "jeongx", "position": 21}
       ]
+    },
+	  {
+      "round": 20,
+      "raceName": "巴西",
+      "date": "2025-07-11",
+      "fastestLap": "大口口",
+      "results": [
+        {"driver": "大口口", "position": 1},
+        {"driver": "高桥凉粉", "position": 2},
+        {"driver": "曾宇", "position": 3},
+        {"driver": "嘴臭角田", "position": 4},
+        {"driver": "吃火锅", "position": 5},
+		{"driver": "M.Verstappen", "position": 6},
+		{"driver": "919", "position": 9},
+		{"driver": "LYX", "position": 10},
+		{"driver": "机器鸟", "position": 11},
+		{"driver": "Taxz", "position": 15},	
+		{"driver": "jeongx", "position": 18}
+      ]
+    },
+	  {
+      "round": 20,
+      "raceName": "拉斯维加斯",
+      "date": "2025-07-11",
+      "fastestLap": "大口口",
+      "results": [
+        {"driver": "嘴臭角田", "position": 1},
+        {"driver": "高桥凉粉", "position": 2},
+        {"driver": "曾宇", "position": 3},
+        {"driver": "M.Verstappen", "position": 4},
+        {"driver": "919", "position": 6},
+		{"driver": "大口口", "position": 8},
+		{"driver": "jeongx", "position": 10},
+		{"driver": "机器鸟", "position": 14},
+		{"driver": "吃火锅", "position": 21},
+		{"driver": "LYX", "position": 21},	
+		{"driver": "冬天", "position": 21},
+		{"driver": "Taxz", "position": 21}
+      ]
     }
   ]
 }
