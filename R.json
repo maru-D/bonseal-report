@@ -196,7 +196,7 @@
       "date": "2025-06-30",
       "fastestLap": "919",
       "results": [
-        {"driver": "嘴臭角田", "position": 1},
+        {"driver": "OLD DU DU DU", "position": 1},
         {"driver": "曾宇", "position": 2},
         {"driver": "卡尔", "position": 3},
         {"driver": "大口口", "position": 4},
@@ -222,7 +222,7 @@
 		{"driver": "Taxz", "position": 6},
 		{"driver": "919", "position": 7},
 		{"driver": "大口口", "position": 14},
-		{"driver": "嘴臭角田", "position": 21},
+		{"driver": "OLD DU DU DU", "position": 21},
 		{"driver": "jeongx", "position": 21},
 		{"driver": "曾宇", "position": 21}			
       ]
@@ -235,7 +235,7 @@
       "results": [
         {"driver": "M.Verstappen", "position": 8},
         {"driver": "曾宇", "position": 11},
-        {"driver": "嘴臭角田", "position": 21},
+        {"driver": "OLD DU DU DU", "position": 21},
         {"driver": "高桥凉粉", "position": 21},
         {"driver": "jeongx", "position": 21},
 		{"driver": "冬天", "position": 21},
@@ -246,10 +246,10 @@
       "round": 16,
       "raceName": "蒙扎",
       "date": "2025-07-2",
-      "fastestLap": "嘴臭角田",
+      "fastestLap": "OLD DU DU DU",
       "results": [
         {"driver": "M.Verstappen", "position": 1},
-        {"driver": "嘴臭角田", "position": 4},
+        {"driver": "OLD DU DU DU", "position": 4},
         {"driver": "冬天", "position": 8},
         {"driver": "jeongx", "position": 11},
         {"driver": "919", "position": 21},
@@ -345,7 +345,7 @@
         {"driver": "大口口", "position": 1},
         {"driver": "高桥凉粉", "position": 2},
         {"driver": "曾宇", "position": 3},
-        {"driver": "嘴臭角田", "position": 4},
+        {"driver": "OLD DU DU DU", "position": 4},
         {"driver": "吃火锅", "position": 5},
 		{"driver": "M.Verstappen", "position": 6},
 		{"driver": "919", "position": 9},
@@ -361,7 +361,7 @@
       "date": "2025-07-11",
       "fastestLap": "大口口",
       "results": [
-        {"driver": "嘴臭角田", "position": 1},
+        {"driver": "OLD DU DU DU", "position": 1},
         {"driver": "高桥凉粉", "position": 2},
         {"driver": "曾宇", "position": 3},
         {"driver": "M.Verstappen", "position": 4},
