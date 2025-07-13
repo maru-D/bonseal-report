@@ -1028,32 +1028,32 @@
             "fastestLap": "LYX",
             "results": [
                 {
+                    "driver": "OLD DU DU DU",
+                    "position": 1
+                },
+                {
                     "driver": "LYX",
                     "position": 2
                 },
                 {
-                    "driver": "OLD DU DU DU",
+                    "driver": "高桥凉粉",
                     "position": 3
                 },
                 {
-                    "driver": "高桥凉粉",
+                    "driver": "919",
                     "position": 4
                 },
                 {
-                    "driver": "919",
+                    "driver": "卡尔",
                     "position": 5
                 },
                 {
-                    "driver": "卡尔",
+                    "driver": "Taxz",
                     "position": 6
                 },
                 {
-                    "driver": "Taxz",
-                    "position": 7
-                },
-                {
                     "driver": "jeongx",
-                    "position": 14
+                    "position": 13
                 },
                 {
                     "driver": "M.Verstappen",
