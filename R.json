@@ -705,7 +705,7 @@
             ]
         },
         {
-            "round": 17,
+            "round": 18,
             "raceName": "新加坡",
             "date": "2025-07-9",
             "fastestLap": "LYX",
@@ -757,7 +757,7 @@
             ]
         },
         {
-            "round": 18,
+            "round": 19,
             "raceName": "德克萨斯",
             "date": "2025-07-10",
             "fastestLap": "919",
@@ -809,7 +809,7 @@
             ]
         },
         {
-            "round": 19,
+            "round": 20,
             "raceName": "墨西哥",
             "date": "2025-07-10",
             "fastestLap": "LYX",
@@ -865,7 +865,7 @@
             ]
         },
         {
-            "round": 20,
+            "round": 21,
             "raceName": "巴西",
             "date": "2025-07-11",
             "fastestLap": "大口口",
@@ -917,7 +917,7 @@
             ]
         },
         {
-            "round": 21,
+            "round": 22,
             "raceName": "拉斯维加斯",
             "date": "2025-07-11",
             "fastestLap": "大口口",
@@ -968,6 +968,99 @@
                 },
                 {
                     "driver": "Taxz",
+                    "position": 21
+                }
+            ]
+        }
+		,
+        {
+            "round": 23,
+            "raceName": "卡塔尔",
+            "date": "2025-07-12",
+            "fastestLap": "OLD DU DU DU",
+            "results": [
+                {
+                    "driver": "919",
+                    "position": 1
+                },
+                {
+                    "driver": "M.Verstappen",
+                    "position": 2
+                },
+                {
+                    "driver": "高桥凉粉",
+                    "position": 3
+                },
+                {
+                    "driver": "jeongx",
+                    "position": 4
+                },
+                {
+                    "driver": "OLD DU DU DU",
+                    "position": 5
+                },
+                {
+                    "driver": "书晨Formula1",
+                    "position": 6
+                },
+                {
+                    "driver": "卡尔",
+                    "position": 11
+                },
+                {
+                    "driver": "大口口",
+                    "position": 12
+                },
+                {
+                    "driver": "吃火锅",
+                    "position": 21
+                },
+                {
+                    "driver": "机器鸟",
+                    "position": 21
+                }
+            ]
+        },
+        {
+            "round": 24,
+            "raceName": "阿布扎比",
+            "date": "2025-07-12",
+            "fastestLap": "LYX",
+            "results": [
+                {
+                    "driver": "LYX",
+                    "position": 2
+                },
+                {
+                    "driver": "OLD DU DU DU",
+                    "position": 3
+                },
+                {
+                    "driver": "高桥凉粉",
+                    "position": 4
+                },
+                {
+                    "driver": "919",
+                    "position": 5
+                },
+                {
+                    "driver": "卡尔",
+                    "position": 6
+                },
+                {
+                    "driver": "Taxz",
+                    "position": 7
+                },
+                {
+                    "driver": "jeongx",
+                    "position": 14
+                },
+                {
+                    "driver": "M.Verstappen",
+                    "position": 21
+                },
+                {
+                    "driver": "书晨Formula1",
                     "position": 21
                 }
             ]
