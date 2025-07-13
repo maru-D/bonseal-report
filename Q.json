@@ -830,7 +830,7 @@
             ]
         },
         {
-            "round": 17,
+            "round": 18,
             "raceName": "新加坡",
             "date": "2025-07-9",
             "results": [
@@ -892,7 +892,7 @@
             ]
         },
         {
-            "round": 18,
+            "round": 19,
             "raceName": "德克萨斯",
             "date": "2025-07-10",
             "results": [
@@ -954,7 +954,7 @@
             ]
         },
         {
-            "round": 19,
+            "round": 20,
             "raceName": "墨西哥",
             "date": "2025-07-10",
             "results": [
@@ -1021,7 +1021,7 @@
             ]
         },
         {
-            "round": 20,
+            "round": 21,
             "raceName": "巴西",
             "date": "2025-07-11",
             "results": [
@@ -1083,7 +1083,7 @@
             ]
         },
         {
-            "round": 21,
+            "round": 22,
             "raceName": "拉斯维加斯",
             "date": "2025-07-11",
             "results": [
@@ -1148,6 +1148,40 @@
                     "rlt": "/"
                 }
             ]
-        }
+        },
+  {
+      "round": 23,
+      "raceName": "卡塔尔",
+      "date": "2025-07-12",
+      "results": [
+ {"driver": "OLD DU DU DU", "position": 1,"rlt":"1:22.520"},
+ {"driver": "高桥凉粉", "position": 2,"rlt":"1:23.194"},
+ {"driver": "jeongx", "position": 3,"rlt":"1:23.202"},
+ {"driver": "卡尔", "position": 4,"rlt":"1:23.224"},
+ {"driver": "919", "position": 5,"rlt":"1:23.596"},
+ {"driver": "大口口", "position": 6,"rlt":"1:23.777"},
+ {"driver": "M.Verstappen", "position": 7,"rlt":"1:24.503"},
+ {"driver": "吃火锅", "position": 8,"rlt":"1:26.241"},
+ {"driver": "书晨Formula1", "position": 9,"rlt":"1:26.751"},
+ {"driver": "机器鸟", "position": 10,"rlt":"1:27.466"}
+ ]
+    }
+,
+  {
+      "round": 24,
+      "raceName": "阿布扎比",
+      "date": "2025-07-12",
+      "results": [
+ {"driver": "OLD DU DU DU", "position": 1,"rlt":"1:24.926"},
+ {"driver": "高桥凉粉", "position": 2,"rlt":"1:25.005"},
+ {"driver": "卡尔", "position": 3,"rlt":"1:25.369"},
+ {"driver": "919", "position": 4,"rlt":"1:25.691"},
+ {"driver": "Taxz", "position": 5,"rlt":"1:25.947"},
+ {"driver": "M.Verstappen", "position": 6,"rlt":"1:26.269"},
+ {"driver": "jeongx", "position": 7,"rlt":"1:26.295"},
+ {"driver": "书晨Formula1", "position": 8,"rlt":"1:30.015"},
+ {"driver": "LYX", "position": 9,"rlt":"/"}
+ ]
+}
     ]
 }
