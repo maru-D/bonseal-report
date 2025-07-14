@@ -20,7 +20,7 @@
       margin-top: 20px;
       font-weight: 700;
     }
-	h4 {
+    h4 {
       color: #ff6f00;
       margin-top: 20px;
       font-weight: 400;
@@ -80,7 +80,7 @@
 <body>
   <div class="container">
     <h2 class="text-center mb-4">Bonseal Racing S1赛季(已完结)</h2>
-	<h4 class="text-center mb-4">(2025/06/10~2025/07/12)</h4>
+    <h4 class="text-center mb-4">(2025/06/10~2025/07/12)</h4>
     <div class="row g-4">
       <div class="col-lg-6 col-md-12">
         <h3>赛季总积分榜</h3>
@@ -119,11 +119,8 @@
 
   <script>
     const pointsTable = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
-    const INITIAL_ELO = 1500;
-    const K = 400;
 
     let driverBarChart = null;
-
     const colorClasses = ['color-blue', 'color-orange', 'color-green', 'color-purple', 'color-red', 'color-cyan'];
 
     Promise.all([
@@ -136,7 +133,6 @@
       let totalPoints = {};
       let stats = {};
       let racePoints = {};
-      let elo = {};
 
       const qualifyingMap = {};
       qData.races.forEach(r => {
@@ -156,7 +152,6 @@
 
       driversSet.forEach(driver => {
         totalPoints[driver] = [];
-        elo[driver] = INITIAL_ELO;
         stats[driver] = {
           wins: 0,
           podiums: 0,
@@ -189,26 +184,7 @@
             thisRacePoints[flDriver] = (thisRacePoints[flDriver] || 0) + 1;
             raceTotalPoints += 1;
           }
-        } 
-
-        let eloSum = 0;
-        driversSet.forEach(driver => {
-          eloSum += elo[driver];
-        });
-
-        driversSet.forEach(driver => {
-          if (!(driver in thisRacePoints)) {
-            return;
-          }
-          const actualRatio = raceTotalPoints > 0
-            ? (thisRacePoints[driver] || 0) / raceTotalPoints
-            : 0;
-          const expectedRatio = eloSum > 0
-            ? elo[driver] / eloSum
-            : 1 / driversSet.size;
-          const delta = K * (actualRatio - expectedRatio);
-          elo[driver] += delta;
-        });
+        }
 
         driversSet.forEach(driver => {
           const prev = raceIndex > 0 ? totalPoints[driver][raceIndex - 1] : 0;
@@ -220,8 +196,116 @@
         race.results.forEach(res => {
           stats[res.driver].points = totalPoints[res.driver][raceIndex];
         });
+      });
 
+      let latestTotals = [];
+      driversSet.forEach(d => {
+        let sum = totalPoints[d][totalPoints[d].length - 1] || 0;
+        latestTotals.push({ driver: d, points: sum });
+      });
+
+      let prevTotals = [];
+      driversSet.forEach(d => {
+        let len = totalPoints[d].length;
+        let prevSum = len >= 2 ? totalPoints[d][len - 2] : 0;
+        prevTotals.push({ driver: d, points: prevSum });
+      });
+
+      let prevSorted = [...prevTotals].sort((a, b) => b.points - a.points);
+      let prevRankMap = {};
+      prevSorted.forEach((item, idx) => {
+        prevRankMap[item.driver] = idx + 1;
+      });
+
+      let sortedByPoints = [...latestTotals].sort((a, b) => b.points - a.points);
+
+      let standingsHtml = "";
+      sortedByPoints.forEach((item, idx) => {
+        let driver = item.driver;
+        let prevRank = prevRankMap[driver] || idx + 1;
+        let rankChange = prevRank - (idx + 1);
+
+        let icon = "";
+        if (rankChange > 0) {
+          icon = `<span style="color:green;">▲</span>`;
+        } else if (rankChange < 0) {
+          icon = `<span style="color:red;">▼</span>`;
+        }
+
+        standingsHtml += `<li class="list-group-item" data-driver="${driver}">
+            <div>
+              <span class="me-2">${String(idx + 1).padStart(2, '0')}</span>
+              <span class="driver-name">${driver}</span>
+            </div>
+            <div class="driver-points d-flex align-items-center">
+              ${icon}
+              <span class="ms-2">${item.points} 分</span>
+            </div>
+          </li>`;
+      });
+      document.getElementById('standings').innerHTML = standingsHtml;
+
+      // ---------- 新 Elo 替换逻辑 ----------
+      // 用平均排位赛排名替代 Elo
+      let avgQualifying = {};
+      let maxAvg = 0;
+
+      driversSet.forEach(driver => {
+        let sum = 0;
+        let count = 0;
+        qData.races.forEach(race => {
+          let result = race.results.find(r => r.driver === driver);
+          if (result && result.position !== 21) {
+            sum += result.position;
+            count++;
+          }
+        });
+        let avg = count > 0 ? sum / count : null;
+        avgQualifying[driver] = avg;
+        if (avg !== null && avg > maxAvg) maxAvg = avg;
+      });
+
+      let eloList = [];
+      driversSet.forEach(driver => {
+        let avg = avgQualifying[driver];
+        let score = avg === null ? 0 :
+          Math.round(1500 + (maxAvg - avg) * 100);
+        eloList.push({
+          driver,
+          score,
+          avg: avg === null ? "-" : avg.toFixed(2)
+        });
+      });
+
+      eloList = eloList.filter(x => x.avg !== "-");
+      eloList.sort((a, b) => b.score - a.score);
+
+      let eloHtml = "";
+      eloList.forEach((item, idx) => {
+        eloHtml += `<li class="list-group-item">
+            <div>
+              <span class="me-2">${String(idx + 1).padStart(2, '0')}</span>
+              <span class="driver-name">${item.driver}</span>
+            </div>
+            <div class="driver-elo">${item.score}</div>
+          </li>`;
+      });
+      document.getElementById('eloList').innerHTML = eloHtml;
+
+      // ---------- 渲染分站（倒序） ----------
+      document.getElementById('raceCards').innerHTML = "";
+      [...data.races].reverse().forEach((race, raceIndex) => {
         let colorClass = colorClasses[raceIndex % colorClasses.length];
+        let thisRacePoints = {};
+        race.results.forEach(res => {
+          const driver = res.driver;
+          const pos = res.position;
+          let pts = (pos <= 10) ? pointsTable[pos - 1] : 0;
+          thisRacePoints[driver] = pts;
+          if (race.fastestLap && race.fastestLap !== '/' && race.fastestLap === driver) {
+            pts += 1;
+          }
+        });
 
         let html = `
           <div class="col-lg-6 col-md-12">
@@ -257,83 +341,56 @@
           html += `
             <div class="tab-pane fade" id="qualifying-tab-${race.round}">
               <ul class="list-group">`;
-
           qRace.results.forEach(res => {
             const driver = res.driver;
             const posText = res.position === 21 ? '退赛' : String(res.position);
             const rlt = res.rlt || '/';
             html += `<li class="list-group-item">
-              <div><span class="me-2">${posText.padStart(2, '0')}</span><span class="driver-name">${driver}</span></div>
-              <div class="driver-points ${colorClass}">${rlt}</div>
-            </li>`;
+                <div><span class="me-2">${posText.padStart(2, '0')}</span><span class="driver-name">${driver}</span></div>
+                <div class="driver-points ${colorClass}">${rlt}</div>
+              </li>`;
           });
-
           html += `</ul></div>`;
         }
 
         html += `</div></div></div>`;
-
         document.getElementById('raceCards').innerHTML += html;
       });
 
-      let latestTotals = [];
-      driversSet.forEach(d => {
-        let sum = totalPoints[d][totalPoints[d].length - 1] || 0;
-        latestTotals.push({ driver: d, points: sum, elo: Math.round(elo[d]) });
+      const colorPalette = [
+        "#3366CC", "#DC3912", "#FF9900", "#109618",
+        "#990099", "#3B3EAC", "#0099C6", "#DD4477",
+        "#66AA00", "#B82E2E", "#316395", "#994499",
+        "#22AA99", "#AAAA11", "#6633CC", "#E67300",
+        "#8B0707", "#651067", "#329262", "#5574A6",
+        "#3B3EAC"
+      ];
+
+      let datasets = sortedByPoints.map((item, idx) => ({
+        label: item.driver,
+        data: totalPoints[item.driver],
+        borderColor: colorPalette[idx % colorPalette.length],
+        backgroundColor: colorPalette[idx % colorPalette.length],
+        borderWidth: 2,
+        fill: false
+      }));
+
+      new Chart(document.getElementById('trend'), {
+        type: 'line',
+        data: {
+          labels: raceLabels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          aspectRatio: window.innerWidth < 768 ? 0.6 : 2.5,
+          plugins: {
+            legend: {
+              display: true
+            }
+          }
+        }
       });
-
-      let prevTotals = [];
-      driversSet.forEach(d => {
-        let len = totalPoints[d].length;
-        let prevSum = len >= 2 ? totalPoints[d][len - 2] : 0;
-        prevTotals.push({ driver: d, points: prevSum });
-      });
-
-      let prevSorted = [...prevTotals].sort((a, b) => b.points - a.points);
-      let prevRankMap = {};
-      prevSorted.forEach((item, idx) => {
-        prevRankMap[item.driver] = idx + 1;
-      });
-
-      let sortedByPoints = [...latestTotals].sort((a, b) => b.points - a.points);
-
-	  let standingsHtml = "";
-sortedByPoints.forEach((item, idx) => {
-  let driver = item.driver;
-  let prevRank = prevRankMap[driver] || idx + 1;
-  let rankChange = prevRank - (idx + 1);
-
-  let icon = "";
-  if (rankChange > 0) {
-    icon = `<span style="color:green;">▲</span>`;
-  } else if (rankChange < 0) {
-    icon = `<span style="color:red;">▼</span>`;
-  }
-
-  standingsHtml += `<li class="list-group-item" data-driver="${driver}">
-      <div>
-        <span class="me-2">${String(idx + 1).padStart(2, '0')}</span>
-        <span class="driver-name">${driver}</span>
-      </div>
-      <div class="driver-points d-flex align-items-center">
-        ${icon}
-        <span class="ms-2">${item.points} 分</span>
-      </div>
-    </li>`;
-});
-
-	 
-      document.getElementById('standings').innerHTML = standingsHtml;
-
-      let sortedByElo = [...latestTotals].sort((a, b) => b.elo - a.elo);
-      let eloHtml = "";
-      sortedByElo.forEach((item, idx) => {
-        eloHtml += `<li class="list-group-item">
-            <div><span class="me-2">${String(idx + 1).padStart(2, '0')}</span><span class="driver-name">${item.driver}</span></div>
-            <div class="driver-elo">${item.elo}</div>
-          </li>`;
-      });
-      document.getElementById('eloList').innerHTML = eloHtml;
 
       document.querySelectorAll('#standings .list-group-item').forEach(el => {
         el.addEventListener('click', () => {
@@ -372,40 +429,6 @@ sortedByPoints.forEach((item, idx) => {
         });
       });
 
-      const colorPalette = [
-        "#3366CC", "#DC3912", "#FF9900", "#109618",
-        "#990099", "#3B3EAC", "#0099C6", "#DD4477",
-        "#66AA00", "#B82E2E", "#316395", "#994499",
-        "#22AA99", "#AAAA11", "#6633CC", "#E67300",
-        "#8B0707", "#651067", "#329262", "#5574A6",
-        "#3B3EAC"
-      ];
-
-      let datasets = sortedByPoints.map((item, idx) => ({
-        label: item.driver,
-        data: totalPoints[item.driver],
-        borderColor: colorPalette[idx % colorPalette.length],
-        backgroundColor: colorPalette[idx % colorPalette.length],
-        borderWidth: 2,
-        fill: false
-      }));
-
-      new Chart(document.getElementById('trend'), {
-  type: 'line',
-  data: {
-    labels: raceLabels,
-    datasets: datasets
-  },
-  options: {
-    responsive: true,
-    aspectRatio: window.innerWidth < 768 ? 0.6 : 2.5,
-    plugins: {
-      legend: {
-        display: true
-      }
-    }
-  }
-});
     });
   </script>
 </body>
