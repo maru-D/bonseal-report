@@ -2,21 +2,18 @@
   "races": [
     {
       "round": 1,
-      "raceName": "澳大利亚",
+      "raceName": "沙特",
       "date": "2025-07-14",
       "results": [
-        {
-          "driver": "高桥凉粉",
-          "reason": "鱼雷清台",
-          "penalty": "1000秒罚时",
-          "pointsDeducted": 12
-        },
-        {
-          "driver": "919",
-          "reason": "超出赛道限制",
-          "penalty": "3秒罚时",
-          "pointsDeducted": 2
-        }
+        
+      ]
+    },
+    {
+      "round": 2,
+      "raceName": "银石",
+      "date": "2025-07-14",
+      "results": [
+        
       ]
     }
   ]

@@ -18,10 +18,7 @@ Promise.all([
   let teamMap = {};
   let penaltiesMap = {};
 
-  qData.races.forEach(r => {
-    penaltiesMap[r.round] = [];
-  });
-
+  // 初始化 penaltiesMap
   penaltiesData.races.forEach(race => {
     penaltiesMap[race.round] = race.results || [];
   });
@@ -57,8 +54,6 @@ Promise.all([
   Object.values(teamMap).forEach(team => {
     teamPoints[team] = [];
   });
-
-  let suspendedDrivers = {};
 
   data.races.forEach((race, raceIndex) => {
     let thisRacePoints = {};
@@ -114,6 +109,11 @@ Promise.all([
       }
     });
 
+    // 初始化本轮车队积分为上一轮累计值
+    Object.keys(teamPoints).forEach(team => {
+      teamPoints[team][raceIndex] = raceIndex > 0 ? teamPoints[team][raceIndex - 1] : 0;
+    });
+
     driversSet.forEach(driver => {
       const prev = raceIndex > 0 ? totalPoints[driver][raceIndex - 1] : 0;
       const curr = thisRacePoints[driver] || 0;
@@ -122,8 +122,7 @@ Promise.all([
 
       const team = teamMap[driver];
       if (team) {
-        const prevTeam = raceIndex > 0 ? teamPoints[team][raceIndex - 1] || 0 : 0;
-        teamPoints[team][raceIndex] = prevTeam + curr;
+        teamPoints[team][raceIndex] += curr;
       }
     });
 
@@ -167,17 +166,16 @@ Promise.all([
     }
 
     standingsHtml += `<li class="list-group-item" data-driver="${driver}">
-    <div>
-      <span class="me-2">${String(idx + 1).padStart(2, '0')}</span>
-      <span class="driver-name">${driver}</span>
-      <span class="team-name ms-2">(${teamMap[driver] || '-'})</span>
-    </div>
-    <div class="driver-points d-flex align-items-center">
-      ${icon}
-      <span class="ms-2">${item.points} 分</span>
-    </div>
-  </li>`;
-
+      <div>
+        <span class="me-2">${String(idx + 1).padStart(2, '0')}</span>
+        <span class="driver-name">${driver}</span>
+        <span class="team-name ms-2">(${teamMap[driver] || '-'})</span>
+      </div>
+      <div class="driver-points d-flex align-items-center">
+        ${icon}
+        <span class="ms-2">${item.points} 分</span>
+      </div>
+    </li>`;
   });
   document.getElementById('standings').innerHTML = standingsHtml;
 
@@ -191,9 +189,9 @@ Promise.all([
   let teamHtml = "";
   teamLatestTotals.forEach((item, idx) => {
     teamHtml += `<li class="list-group-item">
-        <div><span class="me-2">${String(idx + 1).padStart(2, '0')}</span><span class="driver-name">${item.team}</span></div>
-        <div class="team-points">${item.points} 分</div>
-      </li>`;
+      <div><span class="me-2">${String(idx + 1).padStart(2, '0')}</span><span class="driver-name">${item.team}</span></div>
+      <div class="team-points">${item.points} 分</div>
+    </li>`;
   });
   document.getElementById('teamStandings').innerHTML = teamHtml;
 
@@ -350,18 +348,17 @@ Promise.all([
       <div class="tab-pane fade" id="penalty-tab-${race.round}">
         <ul class="list-group">`;
     if (penalties && penalties.length > 0) {
-  penalties.forEach(penalty => {
-    html += `<li class="list-group-item">
-      <div><span class="driver-name">${penalty.driver}</span></div>
-      <div class="penalty-text">
-        ${penalty.reason} → ${penalty.penalty} → 驾照分扣${penalty.pointsDeducted || 0}分
-      </div>
-    </li>`;
-  });
-} else {
-  html += `<li class="list-group-item penalty-text">本场无判罚记录</li>`;
-}
-
+      penalties.forEach(penalty => {
+        html += `<li class="list-group-item">
+          <div><span class="driver-name">${penalty.driver}</span></div>
+          <div class="penalty-text">
+            ${penalty.reason} → ${penalty.penalty} → 驾照分扣${penalty.pointsDeducted || 0}分
+          </div>
+        </li>`;
+      });
+    } else {
+      html += `<li class="list-group-item penalty-text">本场无判罚记录</li>`;
+    }
     html += `</ul></div>`;
 
     html += `</div></div></div>`;
