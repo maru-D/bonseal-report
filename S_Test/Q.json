@@ -1,0 +1,47 @@
+{
+    "races": [
+        {
+            "round": 1,
+            "raceName": "澳大利亚",
+            "date": "2025-06-10",
+            "results": [
+                {
+                    "driver": "LYX",
+					"team": "Red Bull Racing",
+                    "position": 1,
+                    "rlt": "1:16.617"
+                },
+                {
+                    "driver": "高桥凉粉",
+					"team": "Macrlen",
+                    "position": 2,
+                    "rlt": "1:17.975"
+                },
+                {
+                    "driver": "卡尔",
+					"team": "Ferrile",
+                    "position": 3,
+                    "rlt": "1:18.293"
+                },
+                {
+                    "driver": "919",
+					"team": "benz",
+                    "position": 4,
+                    "rlt": "1:19.382"
+                },
+                {
+                    "driver": "书晨Formula1",
+					"team": "Ferrile",
+                    "position": 5,
+                    "rlt": "1:20.275"
+                },
+                {
+                    "driver": "Taxz",
+					"team": "Macrlen",
+                    "position": 6,
+                    "rlt": "/"
+                }
+            ]
+        }
+    ]
+}

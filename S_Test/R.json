@@ -1,0 +1,42 @@
+{
+    "races": [
+        {
+            "round": 1,
+            "raceName": "澳大利亚",
+            "date": "2025-06-10",
+            "fastestLap": "LYX",
+            "results": [
+                {
+                    "driver": "LYX",
+					"team": "Red Bull Racing",
+                    "position": 1
+                },
+                {
+                    "driver": "卡尔",
+					"team": "Ferrile",
+                    "position": 2
+                },
+                {
+                    "driver": "919",
+					"team": "benz",
+                    "position": 9
+                },
+                {
+                    "driver": "高桥凉粉",
+					"team": "Macrlen",
+                    "position": 15
+                },
+                {
+                    "driver": "Taxz",
+					"team": "Macrlen",
+                    "position": 16
+                },
+                {
+                    "driver": "书晨Formula1",
+					"team": "Ferrile",
+                    "position": 18
+                }
+            ]
+        }
+    ]
+}

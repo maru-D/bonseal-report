@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonseal Racing 测试赛季积分表</title>
+  <link href="./static/bootstrap.min.css" rel="stylesheet" />
+  <link href="./static/fonts/montserrat.css" rel="stylesheet" />
+  <link href="./static/style.css" rel="stylesheet" />
+  <script src="./static/chart.min.js"></script>
+  <script src="./static/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center mb-4">Bonseal Racing 测试赛季</h2>
+    <div class="row g-4">
+      <div class="col-lg-6 col-md-12">
+        <h3>车手积分榜</h3>
+        <ul class="list-group mb-4" id="standings"></ul>
+      </div>
+      <div class="col-lg-6 col-md-12">
+        <h3 class="color-purple">车队积分榜</h3>
+        <ul class="list-group mb-4" id="teamStandings"></ul>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12">
+        <h3>车手积分趋势图</h3>
+        <canvas id="driverTrend"></canvas>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12">
+        <h3>车队积分趋势图</h3>
+        <canvas id="teamTrend"></canvas>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-4" id="raceCards"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="driverModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="driverModalLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="driverModalBody">
+          <canvas id="driverBarChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./static/script.js"></script>
+</body>
+</html>
