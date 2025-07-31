@@ -1,0 +1,41 @@
+{
+  "races": [
+    {
+      "round": 1,
+      "raceName": "澳大利亚",
+      "date": "2025-07-29",
+      "results": [
+        {
+          "driver": "2046",
+          "reason": "鱼雷行为造成碰撞导致他人赛车受损并损失时间",
+          "penalty": "20秒罚时",
+          "pointsDeducted": 2
+        },
+        {
+          "driver": "冬天",
+          "reason": "与LYX发生碰撞导致spin，名次损失",
+          "penalty": "赛道事故，不再做进一步调查",
+          "pointsDeducted": 0
+        },
+        {
+          "driver": "LYX",
+          "reason": "与冬天发生碰撞",
+          "penalty": "赛道事故，不再做进一步调查",
+          "pointsDeducted": 0
+        },
+        {
+          "driver": "机器鸟",
+          "reason": "被套圈车让行套圈车但未安全让行并导致套圈车受损",
+          "penalty": "5秒罚时",
+          "pointsDeducted": 0
+        },
+        {
+          "driver": "OLD DU DU DU",
+          "reason": "危险返回赛道并引发事故",
+          "penalty": "10秒罚时",
+          "pointsDeducted": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>车手实力评分榜</title>
+  <link href="./static/bootstrap.min.css" rel="stylesheet" />
+  <link href="./static/fonts/montserrat.css" rel="stylesheet" />
+  <script src="./static/bootstrap.bundle.min.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      color: #212529;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+    }
+    h3 {
+      color: #ff6f00;
+      margin-top: 20px;
+      font-weight: 700;
+    }
+    .list-group-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+      padding: 12px 15px;
+      border: none;
+      border-bottom: 1px solid #dee2e6;
+      background-color: #fff;
+    }
+    .list-group-item:hover {
+      background-color: #f1f3f5;
+      cursor: pointer;
+    }
+    .driver-name {
+      font-weight: 700;
+      color: #212529;
+    }
+    .driver-elo {
+      font-weight: 700;
+      color: #990099;
+      font-size: 1.2rem;
+    }
+    .driver-avg {
+      font-weight: 500;
+      color: #666;
+      font-size: 1rem;
+      margin-left: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+	<div class="row g-4">
+      <div class="col-lg-6 col-md-12">
+        <h3>车手实力评分榜</h3>
+        <ul class="list-group mb-4" id="eloList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    Promise.all([
+      fetch('Q.json').then(res => res.json())
+    ]).then(([qData]) => {
+      const driversSet = new Set();
+      const avgQualifying = {};
+      const countQualifying = {};
+      let maxAvg = 0;
+
+      qData.races.forEach(r => {
+        r.results.forEach(res => {
+          driversSet.add(res.driver);
+        });
+      });
+
+      driversSet.forEach(driver => {
+        let sum = 0;
+        let count = 0;
+        qData.races.forEach(race => {
+          let result = race.results.find(r => r.driver === driver);
+          if (result && result.position !== 21) {
+            sum += result.position;
+            count++;
+          }
+        });
+        let avg = count > 0 ? sum / count : null;
+        avgQualifying[driver] = avg;
+        countQualifying[driver] = count;
+        if (avg !== null && avg > maxAvg) maxAvg = avg;
+      });
+
+      let eloList = [];
+      driversSet.forEach(driver => {
+        let avg = avgQualifying[driver];
+        let count = countQualifying[driver];
+        let score = avg === null ? 0 : Math.round(1500 + (maxAvg - avg) * 100);
+        eloList.push({
+          driver,
+          score,
+          avg: avg === null ? "-" : avg.toFixed(2),
+          count
+        });
+      });
+
+      eloList = eloList.filter(x => x.avg !== "-");
+      eloList.sort((a, b) => b.score - a.score);
+
+      let eloHtml = "";
+      eloList.forEach((item, idx) => {
+        eloHtml += `<li class="list-group-item">
+            <div>
+              <span class="me-2">${String(idx + 1).padStart(2, '0')}</span>
+              <span class="driver-name">${item.driver}</span>
+              
+            </div>
+            <div class="driver-elo">${item.score}</div>
+          </li>`;
+      });
+      document.getElementById('eloList').innerHTML = eloHtml;
+    });
+  </script>
+</body>
+</html>

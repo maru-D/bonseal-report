@@ -1,0 +1,88 @@
+body {
+  background-color: #f8f9fa;
+  color: #212529;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+}
+
+h2, h3 {
+  color: #ff6f00;
+  margin-top: 20px;
+  font-weight: 700;
+}
+
+h4 {
+  color: #ff6f00;
+  margin-top: 20px;
+  font-weight: 400;
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  padding: 12px 15px;
+  border: none;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #fff;
+}
+
+.list-group-item:hover {
+  background-color: #f1f3f5;
+  cursor: pointer;
+}
+
+.driver-name {
+  font-weight: 700;
+  color: #212529;
+}
+
+.driver-points {
+  font-weight: 700;
+  color: #ff6f00;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.team-points {
+  font-weight: 700;
+  color: #990099;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+canvas {
+  max-width: 100%;
+}
+
+.modal-title {
+  font-weight: 700;
+  color: #ff6f00;
+}
+
+.color-blue { color: #3366CC; }
+.color-orange { color: #FF9900; }
+.color-green { color: #109618; }
+.color-purple { color: #990099; }
+.color-red { color: #DC3912; }
+.color-cyan { color: #0099C6; }
+
+#driverTrend, #teamTrend {
+  height: 250px;
+}
+
+@media (max-width: 768px) {
+  #driverTrend, #teamTrend {
+    height: 400px;
+  }
+}
+.team-name {
+  font-size: 1rem;
+  color: #666;
+}
+
+.penalty-text {
+  font-size: 1rem;
+  color: #444;
+}

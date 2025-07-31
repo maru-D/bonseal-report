@@ -1,2 +1,4 @@
 python -m http.server 8080
+http://localhost:8080/index.html
+http://localhost:8080/point.html
 https://maru-d.github.io/bonseal-report/point.html
